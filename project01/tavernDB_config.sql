@@ -10,10 +10,11 @@
 
 -- Drops tables in order of least dependency to most to avoid foreign key conflicts
 
+ DROP TABLE IF EXISTS `userInfo`;
  DROP TABLE IF EXISTS `rats`;
- DROP TABLE IF EXISTS `users`;
- DROP TABLE IF EXISTS  `locations`;
+ DROP TABLE IF EXISTS `locations`;
  DROP TABLE IF EXISTS `roles`;
+ DROP TABLE IF EXISTS `users`;
  DROP TABLE IF EXISTS `taverns`;
 
 
@@ -23,7 +24,7 @@
 
 CREATE TABLE `taverns`  (
   `id` int(4) NOT NULL auto_increment, -- for database use
-  `name` varchar(50) NOT NULL default '', -- name of tavern or franchise
+  `name` varchar(50) NOT NULL DEFAULT '', -- name of tavern or franchise
   PRIMARY KEY(`id`)
 );
 
@@ -42,11 +43,36 @@ UNLOCK TABLES;
 
 
 
+-- Table structure for table 'users'
+
+CREATE TABLE `users` (
+   `id` int(11) NOT NULL auto_increment,
+   `name` varchar(25) NOT NULL DEFAULT '',
+   PRIMARY KEY (`id`)
+  );
+
+-- Dumping TEST data for table 'users'
+
+LOCK TABLES `users` WRITE ;
+INSERT INTO `users` VALUES
+  (1,'Will Gross'),
+  (2, 'Chef Chris'),
+  (3, 'TR Mansfield'),
+  (4, 'Sheryl'),
+  (5, 'Shannon'),
+  (6, 'Frank Reynolds'),
+  (7, 'Charlie Kelly')
+  ;
+UNLOCK TABLES;
+
+
+
+
 -- Table structure for table 'roles'
 
 CREATE TABLE `roles` (
   `id` int(3) NOT NULL auto_increment, -- for database use
-  `role` varchar(50) NOT NULL default '', -- name of role in plain english
+  `role` varchar(50) NOT NULL DEFAULT '', -- name of role in plain english
   `description` varchar(500) NOT NULL DEFAULT '', --brief description of the role
   PRIMARY KEY (`id`)
 );
@@ -61,7 +87,7 @@ INSERT INTO `roles` VALUES
   (3,'Executive Chef','In charge of the menu and runs all back of the house operations'),
   (4,'Manager','Runs all of the front of the house operations'),
   (5,'Host','Greets customers, handles reservations'),
-  (6,'Server','Comunicates between customer, kitchen, and bar. Serves customer'),
+  (6,'Server','Communicates between customer, kitchen, and bar. Serves customer'),
   (7,'Head Bartender','In charge of creating specialty cocktails and runs all bar operations'),
   (8,'Bartender','Makes and serves drinks to customers'),
   (9,'Barback','Ensures bar is properly and consistantly stocked'),
@@ -75,7 +101,7 @@ UNLOCK TABLES;
 
 CREATE TABLE `locations` (
 	`id` int(9) NOT NULL auto_increment, --for database use
-	`streetAddress` VARCHAR(30) NOT NULL DEFAULT '', --street adress of loctaion, including street number, name, and suite/apartment number
+	`streetAddress` VARCHAR(40) NOT NULL DEFAULT '', --street adress of loctaion, including street number, name, and suite/apartment number
 	`city` VARCHAR(21) NOT NULL DEFAULT '',
   `state` char(2) NOT NULL DEFAULT '', --two letter state abreviation
   `zip` int(5) NOT NULL DEFAULT '', --5 digit zip code of location
@@ -100,33 +126,6 @@ INSERT INTO `locations` VALUES
 UNLOCK TABLES;
 
 
--- Table structure for table 'users'
-
-CREATE TABLE `users` (
-	 `id` INT(11) NOT NULL auto_increment,
-	 `name` varchar(25) NOT NULL DEFAULT '',
-	 `role_ID` int(3) NOT NULL DEFAULT 0, --links to the name and description of the user's role in the roles table
-	 `location_ID` int(9) NOT NULL DEFAULT 0, --identifies the location where the user works, can also determine what tavern they work for base on the location
-	 PRIMARY KEY (`id`),
-	 FOREIGN KEY (`role_ID`) REFERENCES `roles`(`id`),
-	 FOREIGN KEY (`location_ID`) REFERENCES `locations`(`id`)
-	);
-
--- Dumping TEST data for table 'users'
-
-LOCK TABLES `users` WRITE ;
-INSERT INTO `users` VALUES
-  (1,'Will Gross', 11, 6),
-  (2, 'Chef Chris', 3, 6),
-  (3, 'TR Mansfield', 2, 6),
-  (4, 'Sheryl', 8, 1),
-  (5, 'Shannon', 8, 5),
-  (6, 'Frank Reynolds', 1, 4),
-  (7, 'Charlie Kelly', 9, 4)
-  ;
-UNLOCK TABLES;
-
-
 -- Table structure for table 'rats'
 
 CREATE TABLE `rats` (
@@ -147,5 +146,32 @@ INSERT INTO `rats` VALUES
   (3, 'Rizzo', 2),
   (4, 'Peter Pettigrew', 2),
   (5, 'Splinter', 3)
+  ;
+UNLOCK TABLES;
+
+
+
+-- Table structure for table 'users'
+
+CREATE TABLE `userInfo` (
+   `user_ID` int(11) NOT NULL DEFAULT 0, -- links to the user table to specify user name 
+   `role_ID` int(3) NOT NULL DEFAULT 0, --links to the name and description of the user's role in the roles table
+   `location_ID` int(9) NOT NULL DEFAULT 0, --identifies the location where the user works, can also determine what tavern they work for base on the location
+   FOREIGN KEY (`user_ID`) REFERENCES `users`(`id`),
+   FOREIGN KEY (`role_ID`) REFERENCES `roles`(`id`),
+   FOREIGN KEY (`location_ID`) REFERENCES `locations`(`id`)
+  );
+
+-- Dumping TEST data for table 'users'
+
+LOCK TABLES `userInfo` WRITE ;
+INSERT INTO `userInfo` VALUES
+  (1, 11, 6),
+  (2, 3, 6),
+  (3, 2, 6),
+  (4, 8, 1),
+  (5, 8, 5),
+  (6, 1, 4),
+  (7, 9, 4)
   ;
 UNLOCK TABLES;
