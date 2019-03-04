@@ -11,9 +11,18 @@
 -- Drops tables in order of least dependency to most to avoid foreign key conflicts
 
  DROP TABLE IF EXISTS `userInfo`;
+ DROP TABLE IF EXISTS `serviceStatuses`;
+ DROP TABLE IF EXISTS `sales`;
+ DROP TABLE IF EXISTS `orders`;
+ DROP TABLE IF EXISTS `inventory`;
  DROP TABLE IF EXISTS `rats`;
  DROP TABLE IF EXISTS `locations`;
+ DROP TABLE IF EXISTS `units`;
+ DROP TABLE IF EXISTS `statuses`;
+ DROP TABLE IF EXISTS `services`;
+ DROP TABLE IF EXISTS `supplies`;
  DROP TABLE IF EXISTS `roles`;
+ DROP TABLE IF EXISTS `guests`;
  DROP TABLE IF EXISTS `users`;
  DROP TABLE IF EXISTS `taverns`;
 
@@ -78,6 +87,31 @@ CREATE TABLE `roles` (
 );
 
 
+
+-- Table structure for table 'guests'
+
+CREATE TABLE `guests` (
+   `id` int(20) NOT NULL auto_increment,
+   `name` varchar(25) NOT NULL DEFAULT '',
+   `birthday` DATE,
+   PRIMARY KEY (`id`)
+  );
+
+-- Dumping TEST data for table 'guests'
+
+LOCK TABLES `guests` WRITE ;
+INSERT INTO `guests` VALUES
+  (1,'jimmy','1997-06-22'),
+  (2, 'timmy','1982-12-07'),
+  (3, 'john','2010-01-31'),
+  (4, 'Sheryl','1969-06-23'),
+  (5, 'Shannon','2000-10-10'),
+  (6, 'Frank','1997-06-22')
+  ;
+UNLOCK TABLES;
+
+
+
 -- Dumping TEST data for table 'roles'
 
 LOCK TABLES `roles` WRITE ;
@@ -97,6 +131,100 @@ INSERT INTO `roles` VALUES
 UNLOCK TABLES;
 
 
+
+
+-- Table structure for table 'supplies'
+
+CREATE TABLE `supplies` (
+   `id` int(5) NOT NULL auto_increment,
+   `name` varchar(30) NOT NULL DEFAULT '',
+   PRIMARY KEY (`id`)
+  );
+
+-- Dumping TEST data for table 'supplies'
+
+LOCK TABLES `supplies` WRITE ;
+INSERT INTO `supplies` VALUES
+  (1,'pint glasses'),
+  (2, 'plates'),
+  (3, 'duclaw beer'),
+  (4, 'boulevard beer'),
+  (5, 'napkins'),
+  (6, 'onion rings'),
+  (7, 'burgers')
+  ;
+UNLOCK TABLES;
+
+
+
+
+-- Table structure for table 'services'
+
+CREATE TABLE `services` (
+   `id` int(3) NOT NULL auto_increment,
+   `name` varchar(30) NOT NULL DEFAULT '',
+   PRIMARY KEY (`id`)
+  );
+
+-- Dumping TEST data for table 'services'
+
+LOCK TABLES `services` WRITE ;
+INSERT INTO `services` VALUES
+  (1,'duclaw 8oz'),
+  (2, 'duclaw pint'),
+  (3, 'burger'),
+  (4, 'onion rings'),
+  (5, 'live music cover'),
+  (6, 'pool')
+  ;
+UNLOCK TABLES;
+
+
+
+-- Table structure for table 'statuses'
+
+CREATE TABLE `statuses` (
+   `id` int(2) NOT NULL auto_increment,
+   `name` varchar(30) NOT NULL DEFAULT '',
+   PRIMARY KEY (`id`)
+  );
+
+-- Dumping TEST data for table 'statuses'
+
+LOCK TABLES `statuses` WRITE ;
+INSERT INTO `statuses` VALUES
+  (1,'active'),
+  (2, 'discontinued'),
+  (3, 'suspended'),
+  (4, 'pending')
+  ;
+UNLOCK TABLES;
+
+
+
+-- Table structure for table 'units'
+
+CREATE TABLE `units` (
+   `id` int(2) NOT NULL auto_increment,
+   `name` varchar(30) NOT NULL DEFAULT '',
+   PRIMARY KEY (`id`)
+  );
+
+-- Dumping TEST data for table 'units'
+
+LOCK TABLES `units` WRITE ;
+INSERT INTO `units` VALUES
+  (0, 'item')
+  (1, 'ounces- fluid'),
+  (2, 'ounces- weight'),
+  (3, 'pounds'),
+  (4, 'kegs'),
+  (5, 'cases'),
+  (6, 'cans'),
+  (7, 'bottles')
+  ;
+UNLOCK TABLES;
+
 -- Table structure for table 'locations'
 
 CREATE TABLE `locations` (
@@ -104,7 +232,7 @@ CREATE TABLE `locations` (
 	`streetAddress` VARCHAR(40) NOT NULL DEFAULT '', --street adress of loctaion, including street number, name, and suite/apartment number
 	`city` VARCHAR(21) NOT NULL DEFAULT '',
   `state` char(2) NOT NULL DEFAULT '', --two letter state abreviation
-  `zip` int(5) NOT NULL DEFAULT '', --5 digit zip code of location
+  `zip` int(5) NOT NULL DEFAULT 0, --5 digit zip code of location
 	`numFloors` int(3) NOT NULL DEFAULT 0, --number of floors at location
 	`tavern_ID` int(4) NOT NULL DEFAULT 0, --id of tavern at this location from taverns table
   PRIMARY KEY (`id`),
@@ -151,7 +279,158 @@ UNLOCK TABLES;
 
 
 
--- Table structure for table 'users'
+-- Table structure for table 'inventory'
+
+CREATE TABLE `inventory` (
+  `id` int(9) NOT NULL auto_increment, --for database use
+  `location_ID` int(9) NOT NULL DEFAULT 0, --identifies the location where the inventory is  
+  `supply_ID` int(5) NOT NULL DEFAULT 0, --identifies the supply being refrenced
+  `count` int(4) NOT NULL DEFAULT 0, --amount of supply in stock using stated units
+  `unit_ID` int(2) NOT NULL DEFAULT 0, --unit of measure for count
+  `date` DATETIME,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`location_ID`) REFERENCES `locations`(`id`),
+  FOREIGN KEY (`supply_ID`) REFERENCES `supplies`(`id`),
+  FOREIGN KEY (`unit_ID`) REFERENCES `units`(`id`)
+);
+
+
+-- Dumping TEST data for table 'inventory'
+
+LOCK TABLES `inventory` WRITE ;
+INSERT INTO `inventory` VALUES
+  (1, 1, 1, 250, 0, '2019-03-04 10:30:00'),
+  (2, 1, 2, 250, 0, '2019-03-04 10:30:00'),
+  (3, 1, 3, 2, 4, '2019-03-04 10:30:00'),
+  (4, 1, 5, 12, 5, '2019-03-04 10:30:00'),
+  (5, 1, 7, 150, 0, '2019-03-04 10:30:00')
+  ;
+UNLOCK TABLES;
+
+
+
+-- Table structure for table 'orders'
+
+CREATE TABLE `orders` (
+  `id` int(9) NOT NULL auto_increment, --for database use
+  `location_ID` int(9) NOT NULL DEFAULT 0, --identifies the location where the inventory is  
+  `supply_ID` int(5) NOT NULL DEFAULT 0, --identifies the supply being refrenced
+  `count` int(4) NOT NULL DEFAULT 0, --amount of supply in stock using stated units
+  `unit_ID` int(2) NOT NULL DEFAULT 0, --unit of measure for count
+  `cost` decimal(19,4) NOT NULL DEFAULT 0.0, --total cost of the order, from cost and count the unit price can be calculated
+  `date` DATETIME,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`location_ID`) REFERENCES `locations`(`id`),
+  FOREIGN KEY (`unit_ID`) REFERENCES `units`(`id`)
+);
+
+
+-- Dumping TEST data for table 'orders'
+
+LOCK TABLES `orders` WRITE ;
+INSERT INTO `orders` VALUES
+  (1, 1, 1, 1, 5, '2019-03-04 10:45:00'),
+  (2, 1, 2, 2, 5, '2019-03-04 10:45:00'),
+  (3, 1, 4, 2, 4, '2019-03-04 10:45:00'),
+  (4, 1, 6, 10, 5, '2019-03-04 10:45:00'),
+  (5, 1, 7, 2, 5, '2019-03-04 10:45:00')
+  ;
+UNLOCK TABLES;
+
+
+
+-- Table structure for table 'sales'
+
+CREATE TABLE `sales` (
+  `id` int(9) NOT NULL auto_increment, --for database use
+  `location_ID` int(9) NOT NULL DEFAULT 0, --identifies the location where the transaction occured 
+  `service_ID` int(3) NOT NULL DEFAULT 0, --identifies the service sold
+  `guest_ID` int(20) NOT NULL DEFAULT 0, --identifies which guest made the purchase
+  `count` int(2) NOT NULL DEFAULT 0, --how many instances of the service the guest purchased
+  `date` DATETIME, --date and time of purchase
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`location_ID`) REFERENCES `locations`(`id`),
+  FOREIGN KEY (`service_ID`) REFERENCES `services`(`id`),
+  FOREIGN KEY (`guest_ID`) REFERENCES `guests`(`id`)
+);
+
+
+-- Dumping TEST data for table 'sales'
+
+LOCK TABLES `sales` WRITE ;
+INSERT INTO `sales` VALUES
+  (1, 6, 3, 1, 2, '2019-03-04 18:30:00'),
+  (2, 6, 4, 2, 1, '2019-03-04 17:30:00'),
+  (3, 5, 5, 3, 4, '2019-03-04 19:30:00'),
+  (4, 3, 1, 4, 1, '2019-03-04 10:30:00'),
+  (5, 5, 2, 5, 1, '2019-03-04 19:30:00')
+  ;
+UNLOCK TABLES;
+
+
+
+
+-- Table structure for table 'serviceSupplies'
+
+CREATE TABLE `serviceSupplies` (
+  `location_ID` int(9) NOT NULL DEFAULT 0, --identifies the location where the service is offered 
+  `service_ID` int(3) NOT NULL DEFAULT 0, --identifies the service being described
+  `supply_ID` int(5) NOT NULL DEFAULT 0, --identifies which supply is needed
+  `count` int(2) NOT NULL DEFAULT 0, --how many of the given units of the supply are needed to provide the service
+  `unit_ID` int(2) NOT NULL DEFAULT 0, --unit of measure for count
+  FOREIGN KEY (`location_ID`) REFERENCES `locations`(`id`),
+  FOREIGN KEY (`service_ID`) REFERENCES `services`(`id`),
+  FOREIGN KEY (`supply_ID`) REFERENCES `supplies`(`id`),
+  FOREIGN KEY (`unit_ID`) REFERENCES `units`(`id`)
+);
+
+
+-- Dumping TEST data for table 'serviceSupplies'
+
+LOCK TABLES `serviceSupplies` WRITE ;
+INSERT INTO `serviceSupplies` VALUES
+  (6, 3, 7, 1, 0),
+  (6, 4, 6, 8, 2),
+  (1, 4, 6, 6, 2),
+  (3, 1, 3, 8, 1),
+  (5, 2, 3, 16, 1)
+  ;
+UNLOCK TABLES;
+
+
+
+
+-- Table structure for table 'serviceStatuses'
+
+CREATE TABLE `serviceStatuses` (
+  `location_ID` int(9) NOT NULL DEFAULT 0, --identifies the location where the service is offered 
+  `service_ID` int(3) NOT NULL DEFAULT 0, --identifies the service being described
+  `price` decimal(19,4) NOT NULL DEFAULT 0.0, --how much does this location charge for this service
+  `status_ID` int(2) NOT NULL DEFAULT 0, --unit of measure for count
+  FOREIGN KEY (`location_ID`) REFERENCES `locations`(`id`),
+  FOREIGN KEY (`service_ID`) REFERENCES `services`(`id`),
+  FOREIGN KEY (`status_ID`) REFERENCES `statuses`(`id`)
+);
+
+
+-- Dumping TEST data for table 'serviceStatuses'
+
+LOCK TABLES `serviceStatuses` WRITE ;
+INSERT INTO `serviceStatuses` VALUES
+  (6, 3, 13.75, 1),
+  (6, 4, 6.50, 1),
+  (1, 4, 4.75, 1),
+  (3, 1, 3.50, 1),
+  (5, 2, 5.50, 1),
+  (5, 5, 6.00, 3)
+  ;
+UNLOCK TABLES;
+
+
+
+
+
+-- Table structure for table 'userInfo'
 
 CREATE TABLE `userInfo` (
    `user_ID` int(11) NOT NULL DEFAULT 0, -- links to the user table to specify user name 
@@ -162,7 +441,7 @@ CREATE TABLE `userInfo` (
    FOREIGN KEY (`location_ID`) REFERENCES `locations`(`id`)
   );
 
--- Dumping TEST data for table 'users'
+-- Dumping TEST data for table 'userInfo'
 
 LOCK TABLES `userInfo` WRITE ;
 INSERT INTO `userInfo` VALUES
