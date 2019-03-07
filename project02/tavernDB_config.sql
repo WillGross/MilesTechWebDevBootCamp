@@ -11,20 +11,22 @@ USE WGross_2019;
 -- Drops tables in order of least dependency to most to avoid foreign key conflicts
 
 
+ DROP TABLE IF EXISTS guestClasses;
  DROP TABLE IF EXISTS userInfo;
  DROP TABLE IF EXISTS serviceStatuses;
  DROP TABLE IF EXISTS serviceSupplies;
  DROP TABLE IF EXISTS sales;
  DROP TABLE IF EXISTS orders;
  DROP TABLE IF EXISTS inventory;
- DROP TABLE IF EXISTS rats;
+ DROP TABLE IF EXISTS guests;
  DROP TABLE IF EXISTS locations;
+ DROP TABLE IF EXISTS classes;
+ DROP TABLE IF EXISTS guestStatuses;
  DROP TABLE IF EXISTS units;
  DROP TABLE IF EXISTS statuses;
  DROP TABLE IF EXISTS services;
  DROP TABLE IF EXISTS supplies;
  DROP TABLE IF EXISTS roles;
- DROP TABLE IF EXISTS guests;
  DROP TABLE IF EXISTS users;
  DROP TABLE IF EXISTS taverns;
 
@@ -105,24 +107,6 @@ INSERT INTO roles (role, description) VALUES
 
 
 
--- Table structure for table 'guests'
-
-CREATE TABLE guests (
-  id int IDENTITY(1,1) PRIMARY KEY NOT NULL, -- for database use
-  name varchar(25) NOT NULL DEFAULT '',
-  birthday DATE
-  );
-
--- Dumping TEST data for table 'guests'
-
-INSERT INTO guests (name, birthday) VALUES
-  ('jimmy','1997-06-22'),
-  ('timmy','1982-12-07'),
-  ('john','2010-01-31'),
-  ('Sheryl','1969-06-23'),
-  ('Shannon','2000-10-10'),
-  ('Frank','1997-06-22')
-  ;
 
 
 
@@ -209,6 +193,50 @@ INSERT INTO units (name) VALUES
 
 
 
+
+-- Table structure for table 'guestStatuses'
+
+CREATE TABLE guestStatuses (
+  id int IDENTITY(1,1) NOT NULL, --PRIMARY KEY declared in a statment later in the file to satisfy project requirments
+  name VARCHAR(25) NOT NULL DEFAULT ''
+);
+
+
+
+-- Dumping TEST data for table 'guestStatuses'
+
+INSERT into guestStatuses (name) VALUES
+  ('happy'),
+  ('satisfied'),
+  ('dissatisfied'),
+  ('angry'),
+  ('hungry')
+  ;
+
+
+
+
+-- Table structure for table 'classes'
+
+CREATE TABLE classes (
+  id int IDENTITY(1,1) PRIMARY KEY NOT NULL, -- for database use
+  name VARCHAR(25) NOT NULL DEFAULT ''
+);
+
+
+-- Dumping TEST data for table 'classes'
+
+INSERT into classes (name) VALUES
+  ('rogue'),
+  ('mage'),
+  ('barbarian'),
+  ('bard'),
+  ('monk')
+;
+
+
+
+
 -- Table structure for table 'locations'
 
 CREATE TABLE locations (
@@ -234,24 +262,29 @@ INSERT INTO locations (streetAddress, city, state, zip, numFloors, tavern_ID) VA
   ;
 
 
--- Table structure for table 'rats'
 
-CREATE TABLE rats (
+-- Table structure for table 'guests'
+
+CREATE TABLE guests (
   id int IDENTITY(1,1) PRIMARY KEY NOT NULL, -- for database use
-  name varchar(25) NOT NULL DEFAULT '', --name of the rat
-  location_ID int FOREIGN KEY (location_ID) REFERENCES locations(id) NOT NUll DEFAULT 0 --location of the rat, will also tie to the name of the tavern at the indicated location
- );
+  name varchar(25) NOT NULL DEFAULT '',
+  birthday DATE,
+  cakeday DATE,
+  guestStatuses_ID int NOT NULL DEFAULT 0, --FOREIGN KEY REFRENCING guestStatuses(id), declared in an alter table statment later in file to comply with project requirments
+  notes varchar(250) NOT NULL DEFAULT ''
+  );
 
- 	
- 	-- Dumping TEST data for table 'rats'
+-- Dumping TEST data for table 'guests'
 
-INSERT INTO rats (name, location_ID) VALUES
-  ('Remmy', 4),
-  ('Spectre', 1),
-  ('Rizzo', 2),
-  ('Peter Pettigrew', 2),
-  ('Splinter', 3)
+INSERT INTO guests (name, birthday, cakeday, guestStatuses_ID, notes) VALUES
+  ('jimmy','1997-06-22', '1996-02-11', 5, 'came in to eat. WANTS TO EAT!'),
+  ('timmy','1982-12-07', '2010-07-30', 1, 'likes his drink. maybe a little too much'),
+  ('john','2010-01-31', '2000-01-01', 1, 'y2k didnt kill him, reason to celebrate'),
+  ('Sheryl','1969-06-23', '1998-08-21', 2, 'enjoyed her stay'),
+  ('Shannon','2000-10-10', '2019-07-03', 4, 'SHE WANTS TO SPEAK TO YOUR MANAGER'),
+  ('Frank','1997-06-22', '2015-09-16', 3, 'thinks his tavern is better')
   ;
+
 
 
 
@@ -397,3 +430,34 @@ INSERT INTO userInfo (user_ID, role_ID, location_ID) VALUES
   (6, 1, 4),
   (7, 9, 4)
   ;
+
+
+
+--Table structure for table 'guestClasses'
+
+CREATE TABLE guestClasses(
+  guest_ID int FOREIGN KEY (guest_ID) REFERENCES guests (id) NOT NULL DEFAULT 0, --identifies what guest is being described
+  class_ID int FOREIGN KEY (class_ID) REFERENCES classes (id) NOT NULL DEFAULT 0, --assigns a class to the guest
+  level int NOT NULL DEFAULT 0 --allows to describe level of guests class
+);
+
+
+
+-- Dumping TEST data for table 'guestClasses'
+
+INSERT into guestClasses (guest_ID, class_ID, level) VALUES
+  (5, 2, 25),
+  (1, 3, 15),
+  (2, 4, 3),
+  (4, 1, 17),
+  (3, 5, 21)
+;
+
+
+
+--alter statment to establish id in guestStatuses as primary key
+ALTER TABLE guestStatuses ADD PRIMARY KEY (id);
+go
+
+--alter statment to establish guestStatuses_ID in guests table as foreign key
+ALTER TABLE guests ADD FOREIGN KEY (guestStatuses_ID) REFERENCES guestStatuses(id);
