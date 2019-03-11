@@ -5,7 +5,7 @@ USE WGross_2019;
 -- Source this file to wipe the db and create a clean coppy
 -- Author: Will Gross
 -- Date:2/28/2019
--- Version: 1.2
+-- Version: 1.1
 -- -----------------------------------------------------
 
 -- Drops tables in order of least dependency to most to avoid foreign key conflicts

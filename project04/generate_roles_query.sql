@@ -1,7 +1,10 @@
 --Will Gross
---lab 03 query
---3/7/19
+--lab 04 query
+--3/11/19
 
+
+select * from INFORMATION_SCHEMA.KEY_COLUMN_USAGE;
+select * from INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS;
 
 --query creates a table that represents a create statment to generate my roles table sans the identity and primary key properties of 'id'
 SELECT DISTINCT CONCAT('CREATE TABLE ', TABLE_NAME, ' (') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'roles'
